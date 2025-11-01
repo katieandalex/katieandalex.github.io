@@ -1,5 +1,5 @@
 {
-  "name": "wedding-website",
+  "name": "katieandalex.github.io",
   "version": "1.0.1",
   "description": "A wedding website with loads of features.",
   "main": "npmfile.js",
@@ -8,16 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:rampatra/wedding-website.git"
+    "url": "git+ssh://git@github.com:katieandalex/katieandalex.github.io.git"
   },
   "keywords": [
     "wedding",
     "template",
     "website template"
   ],
-  "author": "Ram Patra",
+  "author": "Alex Hatzis",
   "license": "GPL-3.0",
-  "homepage": "https://github.com/rampatra/wedding-website",
+  "homepage": "https://github.com/katieandalex/katieandalex.github.io",
   "devDependencies": {
     "gulp": "^4.0.2",
     "gulp-rename": "^1.4.0",
