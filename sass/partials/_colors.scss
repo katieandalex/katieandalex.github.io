@@ -1,0 +1,42 @@
+// Colours partial
+
+// Autumn Color Palette
+$dark-gray-color: #372e2fff;
+$dark-red-color: #883736ff;
+$dark-orange-color: rgb(160, 78, 47);
+$regular-orange-color: #dd934aff;
+$tan-color: #e4b996ff;
+
+// Navigation
+$navigation-color: $dark-orange-color;
+$navigation-color-faded: rgba(160, 77, 47, 0.659);
+// Text colours
+$txt-primary: $dark-orange-color;
+// body font
+$txt-secondary: #5e5858;
+// heading font
+$txt-light: #c2c0c1;
+// header/hero
+$txt-accent: $tan-color;
+$form-placeholder: $tan-color;
+// form placeholder text
+// Global colours
+$accent-color: $regular-orange-color;
+// global accent colour
+$accent-color-hover: $dark-orange-color;
+// global accent colour hover
+$white-color: #fff;
+$black-color: #000;
+// Typography colours
+$h2-color: #e9c7ab;
+$h3-color: $dark-orange-color;
+$h5-color: $dark-orange-color;
+// Layout colours
+$section-light: $white-color;
+$section-dark: $dark-gray-color;
+$to-top-bg:$dark-orange-color;
+$footer-primary: $dark-gray-color;
+$footer-secondary: #5e5858;
+// Keylines
+$keyline-color: #f2dbcb;
+$footer-keyline-color: #e9c7ab;

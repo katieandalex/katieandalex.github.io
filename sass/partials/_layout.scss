@@ -1,0 +1,11 @@
+// Layout variables partial
+
+$section-padding: 40px 0;
+
+section.invitation, section.features-extra, section.rsvp, section.venueintro, section.map, .site-footer{
+	background: $section-dark;
+	//font-family: 'LastChronicle';
+}
+section.features, section.events, section.blog, section.intro, section.eng-pics, section.map, section.intro-content {
+	background: $section-dark;
+}
