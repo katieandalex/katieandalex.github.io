@@ -31,40 +31,14 @@
     <link rel="manifest" href="manifest.json">
     <link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
 
-    <script>
-        // load css files from CDN if local node_modules fail
-        function loadCssFromCDN(css) {
-            // create new link tag
-            const link = document.createElement('link');
-            if (css === 'animate.css') {
-                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css';
-            } else if (css === 'font-awesome.css') {
-                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
-            }
-            link.rel = 'stylesheet';
-
-            // add link tag to head section
-            document.getElementsByTagName('head')[0].appendChild(link);
-        }
-
-        // load js files from CDN if local node_modules fail
-        function loadJsFromCDN(js) {
-            if (js === 'waypoints.js') {
-                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.js"><\/script>');
-            } else if (js === 'jquery.js') {
-                document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"><\/script>');
-            }
-        }
-    </script>
-
     <link rel="stylesheet" href="css/normalize.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/jquery.fancybox.css">
     <link rel="stylesheet" href="css/flexslider.css">
     <link rel="stylesheet" href="css/styles.min.css">
     <link rel="stylesheet" href="css/queries.css">
-    <link rel="stylesheet" href="node_modules/animate.css/animate.min.css" onerror="loadCssFromCDN('animate.css')">
-    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css" onerror="loadCssFromCDN('font-awesome.css')">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
 </head>
 <body id="top">
@@ -82,6 +56,8 @@
                         <ul class="primary-nav">
                             <li><a href="index.html">Home</a></li>
                             <li><a href="venue.html">Venue</a></li>
+                            <li><a href="faqs.html">FAQs</a></li>
+                            <li><a href="costumes.html">Past Costumes</a></li>
                         </ul>
                         <ul class="member-actions">
                             <li><a href="index.html#rsvp" class="btn-white btn-small">Submit Contact Info</a></li>
@@ -185,8 +161,8 @@
         </div>
     </div>
 </footer>
-<script src="js/vendor/jquery-1.11.2.min.js" onerror="loadJsFromCDN('jquery.js')"></script>
-<script src="node_modules/waypoints/lib/jquery.waypoints.min.js" onerror="loadJsFromCDN('waypoints.js')"></script>
+<script src="js/vendor/jquery-1.11.2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
 <script src="js/jquery.fancybox.pack.js"></script>
 <script src="js/vendor/bootstrapv2.min.js"></script>
 <script src="js/jquery.flexslider-min.js"></script>

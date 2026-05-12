@@ -2,9 +2,98 @@
 
 $section-padding: 40px 0;
 
-section.invitation, section.features-extra, section.rsvp, section.venueintro, section.map, .site-footer{
+section.invitation, section.features-extra, section.rsvp, section.venueintro, section.map, section.faq, section.timeline, .site-footer{
 	background: $section-dark;
 	//font-family: 'LastChronicle';
+}
+section.faq ul li {
+	font-size: $font-size-p;
+	line-height: $base-line-height;
+	color: $txt-primary;
+	padding-bottom: 10px;
+	list-style: disc;
+}
+
+/* ==========================================================================
+Timeline
+========================================================================== */
+.timeline-entries {
+	position: relative;
+	padding: 60px 0;
+}
+.timeline-entries::after {
+	content: '';
+	position: absolute;
+	width: 4px;
+	background-color: $keyline-color;
+	top: 60px;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.timeline-entry {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 60px;
+	position: relative;
+}
+.timeline-entry:last-child {
+	margin-bottom: 0;
+}
+.timeline-left, .timeline-right {
+	width: 40%;
+}
+.timeline-left {
+	text-align: right;
+}
+.timeline-right {
+	text-align: left;
+}
+.timeline-left img, .timeline-right img {
+	max-width: 100%;
+	max-height: 350px;
+	border-radius: 6px;
+	object-fit: contain;
+}
+.timeline-left .timeline-label, .timeline-right .timeline-label {
+	font-size: 14px;
+	color: $tan-color;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	margin-top: 8px;
+}
+.timeline-center {
+	width: 20%;
+	display: flex;
+	justify-content: center;
+	position: relative;
+	z-index: 10;
+}
+.timeline-circle {
+	display: inline-block;
+	background-color: $dark-orange-color;
+	border: 4px solid $keyline-color;
+	border-radius: 50%;
+	width: 140px;
+	height: 140px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+.timeline-circle .year {
+	font-family: $accent-font;
+	font-size: 28px;
+	color: $txt-light;
+	line-height: 1.2;
+}
+.timeline-circle .title {
+	font-size: 14px;
+	color: $txt-light;
+	text-align: center;
+	line-height: 1.3;
+	padding: 0 8px;
 }
 section.features, section.events, section.blog, section.intro, section.eng-pics, section.map, section.intro-content {
 	background: $section-dark;
