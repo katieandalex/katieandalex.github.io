@@ -853,6 +853,98 @@ RSVP form
       }
     }
   }
+
+  /* Multi-panel RSVP flow */
+  .rsvp-note-label {
+    display: block;
+    color: $txt-secondary;
+    font-weight: $light;
+    margin: 20px 0 8px;
+  }
+  .rsvp-note {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    resize: vertical;
+  }
+  .rsvp-input {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+  }
+  .rsvp-btn {
+    margin-top: 10px;
+  }
+  .rsvp-back-inline {
+    display: block;
+    margin: 20px auto 0;
+    color: $txt-secondary;
+    text-transform: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .rsvp-back-inline:hover {
+    color: $accent-color;
+  }
+
+  /* Party chooser (ambiguous name match) */
+  .rsvp-party-choices li {
+    margin-bottom: 12px;
+  }
+
+  /* Guest rows in the party panel */
+  .rsvp-guests {
+    text-align: left;
+    margin: 10px 0 0;
+  }
+  .rsvp-guest {
+    padding: 20px 0;
+    border-bottom: solid 1px $keyline-color;
+  }
+  .rsvp-guest:last-child {
+    border-bottom: none;
+  }
+  .rsvp-guest-name {
+    color: $txt-primary;
+    font-size: 18px;
+    font-weight: $semibold;
+    margin-bottom: 10px;
+  }
+  .rsvp-badge {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: $white-color;
+    background-color: $accent-color;
+    border-radius: 3px;
+    padding: 1px 7px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .rsvp-guest-choice {
+    margin-bottom: 10px;
+  }
+  .rsvp-radio {
+    display: inline-block;
+    margin-right: 25px;
+    color: $txt-secondary;
+    font-weight: $light;
+    cursor: pointer;
+  }
+  .rsvp-radio input {
+    margin-right: 6px;
+  }
+  .rsvp-dietary {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 10px 15px;
+  }
 }
 
 /* ==========================================================================
