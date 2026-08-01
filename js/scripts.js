@@ -263,11 +263,11 @@ function alert_markup(alert_type, msg) {
 var RSVP = {
 
     // Deploy the Apps Script as a Web app and paste its /exec URL here.
-    endpoint: 'PASTE_APPS_SCRIPT_WEB_APP_URL_HERE',
+    endpoint: 'https://script.google.com/macros/s/AKfycbxu6LX_t8Owl7-ueDF9XmtDFSsJG7nLVTUkFfR_Xt61VE0rQsSOQnQswVcE_kVS1gwx/exec',
 
     // RSVP cutoff — end of this day, US Eastern. Adjust as needed. Also
     // enforced server-side, since a browser's clock can't be trusted.
-    deadline: new Date('2026-10-15T23:59:59-04:00'),
+    deadline: new Date('2026-10-1T23:59:59-04:00'),
 
     party: null,
 
