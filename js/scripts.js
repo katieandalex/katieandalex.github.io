@@ -388,7 +388,7 @@ var RSVP = {
                 .append(RSVP.radio(g.id, 'no', 'Regretfully declines', g.attending === 'no'));
 
             var $dietary = $('<input type="text" class="rsvp-dietary" ' +
-                'placeholder="Dietary restrictions or allergies (optional)">')
+                'placeholder="Allergies or other dietary needs (optional)">')
                 .attr('name', 'dietary_' + g.id)
                 .val(g.dietary || '');
 
