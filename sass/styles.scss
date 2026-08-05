@@ -791,6 +791,17 @@ RSVP form
 ========================================================================== */
 .rsvp {
   padding-bottom: 140px;
+
+  /* Text sitting directly on the dark section background — lighten it for
+     contrast and bump the size. (Text inside form fields is handled below.) */
+  p {
+    color: $tan-color;
+    font-size: 26px;
+    line-height: 36px;
+  }
+  .header {
+    color: $tan-color;
+  }
   .rsvp-form {
     .rsvp-btn {
       padding: 15px 0;
@@ -838,6 +849,8 @@ RSVP form
         -webkit-border-radius: 6px;
         border-radius: 6px;
         border: none;
+        font-size: 18px;
+        color: $txt-secondary;
       }
       input::-webkit-input-placeholder {
         color: $form-placeholder;
@@ -851,6 +864,127 @@ RSVP form
       input:-ms-input-placeholder {
         color: $form-placeholder;
       }
+    }
+  }
+
+  /* Multi-panel RSVP flow */
+  .rsvp-note-label {
+    display: block;
+    color: $tan-color;
+    font-weight: $light;
+    font-size: 20px;
+    margin: 20px 0 8px;
+  }
+  .rsvp-note {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    resize: vertical;
+    font-size: 18px;
+    color: $txt-secondary;
+  }
+  .rsvp-input {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: $txt-secondary;
+  }
+  .rsvp-btn {
+    margin-top: 10px;
+  }
+  .rsvp-back-inline {
+    display: block;
+    margin: 20px auto 0;
+    color: $tan-color;
+    font-size: 16px;
+    text-transform: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .rsvp-back-inline:hover {
+    color: $accent-color;
+  }
+
+  /* Party chooser (ambiguous name match) */
+  .rsvp-party-choices li {
+    margin-bottom: 12px;
+  }
+
+  /* Guest rows in the party panel */
+  .rsvp-guests {
+    text-align: left;
+    margin: 10px 0 0;
+  }
+  .rsvp-guest {
+    padding: 20px 0;
+    border-bottom: solid 1px $keyline-color;
+  }
+  .rsvp-guest:last-child {
+    border-bottom: none;
+  }
+  .rsvp-guest-name {
+    color: $tan-color;
+    font-size: 22px;
+    font-weight: $semibold;
+    margin-bottom: 10px;
+  }
+  .rsvp-badge {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: $white-color;
+    background-color: $accent-color;
+    border-radius: 3px;
+    padding: 1px 7px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .rsvp-guest-choice {
+    margin-bottom: 10px;
+  }
+  .rsvp-radio {
+    display: inline-block;
+    margin-right: 25px;
+    color: $txt-light;
+    font-weight: $light;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .rsvp-radio input {
+    margin-right: 6px;
+  }
+  .rsvp-dietary {
+    width: 100%;
+    border-radius: 5px;
+    border: solid 1px $keyline-color;
+    padding: 10px 15px;
+    font-size: 18px;
+    color: $txt-secondary;
+  }
+
+  /* "Fully vegetarian" heads-up above the dietary fields */
+  .rsvp-veg-note {
+    text-align: left;
+    color: $tan-color;
+    font-size: 20px;
+    line-height: 30px;
+    border: solid 1px $tan-color;
+    border-radius: 5px;
+    padding: 15px 18px;
+    margin: 10px 0 5px;
+
+    i.fa-leaf {
+      color: $regular-orange-color;
+      margin-right: 8px;
+    }
+    strong {
+      color: $regular-orange-color;
     }
   }
 }

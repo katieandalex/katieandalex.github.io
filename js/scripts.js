@@ -212,32 +212,7 @@ $(document).ready(function () {
 
 
     /********************** RSVP **********************/
-    $('#rsvp-form').on('submit', function (e) {
-        e.preventDefault();
-        var data = $(this).serialize();
-
-        $('#alert-wrapper').html(alert_markup('info', '<strong>Just a sec!</strong> We are saving your details.'));
-
-        if (MD5($('#invite_code').val()) !== '19595ce0b74e256e58ab955949330ce5'
-            && MD5($('#invite_code').val()) !== '19595ce0b74e256e58ab955949330ce5') {
-            $('#alert-wrapper').html(alert_markup('danger', '<strong>Sorry!</strong> Your invite code is incorrect.'));
-        } else {
-            $.post('https://script.google.com/macros/s/AKfycbySUiVbtnuzHsu1kJTBVML5_rZCG2Yo3TTqaV9stEjFwBq1FCurxfNWolh0_eXScW83FQ/exec', data)
-                .done(function (data) {
-                    console.log(data);
-                    if (data.result === "error") {
-                        $('#alert-wrapper').html(alert_markup('danger', data.message));
-                    } else {
-                        $('#alert-wrapper').html('');
-                        $('#rsvp-modal').modal('show');
-                    }
-                })
-                .fail(function (data) {
-                    console.log(data);
-                    $('#alert-wrapper').html(alert_markup('danger', '<strong>Sorry!</strong> There is some issue with the server. '));
-                });
-        }
-    });
+    RSVP.init();
 
 });
 
@@ -279,221 +254,305 @@ function alert_markup(alert_type, msg) {
     return '<div class="alert alert-' + alert_type + '" role="alert">' + msg + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button></div>';
 }
 
-// MD5 Encoding
-var MD5 = function (string) {
+/********************** RSVP **********************/
+// Name-only RSVP lookup against a Google Apps Script web app backed by a
+// Google Sheet (Parties + Guests tabs). See apps-script/ for the backend and
+// setup instructions. While `endpoint` is left as the PASTE_… placeholder, the
+// form runs against the built-in MOCK data below so the flow can be tested
+// locally without a deployed backend.
+var RSVP = {
 
-    function RotateLeft(lValue, iShiftBits) {
-        return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
-    }
+    // Deploy the Apps Script as a Web app and paste its /exec URL here.
+    endpoint: 'https://script.google.com/macros/s/AKfycbxu6LX_t8Owl7-ueDF9XmtDFSsJG7nLVTUkFfR_Xt61VE0rQsSOQnQswVcE_kVS1gwx/exec',
 
-    function AddUnsigned(lX, lY) {
-        var lX4, lY4, lX8, lY8, lResult;
-        lX8 = (lX & 0x80000000);
-        lY8 = (lY & 0x80000000);
-        lX4 = (lX & 0x40000000);
-        lY4 = (lY & 0x40000000);
-        lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
-        if (lX4 & lY4) {
-            return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
+    // RSVP cutoff — end of this day, US Eastern. Adjust as needed. Also
+    // enforced server-side, since a browser's clock can't be trusted.
+    deadline: new Date('2026-10-1T23:59:59-04:00'),
+
+    party: null,
+
+    init: function () {
+        if (!$('#rsvp-lookup').length) {
+            return;
         }
-        if (lX4 | lY4) {
-            if (lResult & 0x40000000) {
-                return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
-            } else {
-                return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
-            }
+        var self = this;
+
+        if (this.isClosed()) {
+            this.show('rsvp-closed');
+            return;
+        }
+
+        $('#rsvp-lookup-form').on('submit', function (e) {
+            e.preventDefault();
+            self.lookup($('#rsvp-name').val());
+        });
+        $('#rsvp-party-form').on('submit', function (e) {
+            e.preventDefault();
+            self.submit();
+        });
+        $('#rsvp').on('click', '.rsvp-back', function () {
+            $('#rsvp-name').val('');
+            self.show('rsvp-lookup');
+        });
+        $('#rsvp-edit').on('click', function () {
+            self.show('rsvp-party');
+        });
+        $('#rsvp-party-choices').on('click', '.rsvp-choice', function () {
+            self.lookupByParty($(this).data('party-id'));
+        });
+    },
+
+    isClosed: function () {
+        return new Date() > this.deadline;
+    },
+
+    // Hide every panel, reveal one, and clear any stale alerts.
+    show: function (id) {
+        $('#rsvp .rsvp-panel').hide();
+        $('#rsvp-lookup-alert, #alert-wrapper').html('');
+        $('#' + id).show();
+    },
+
+    alert: function (type, msg, selector) {
+        $(selector || '#rsvp-lookup-alert').html(alert_markup(type, msg));
+    },
+
+    lookup: function (name) {
+        name = $.trim(name || '');
+        if (name.length < 2) {
+            this.alert('danger', '<strong>Oops!</strong> Please enter your first and last name.');
+            return;
+        }
+        this.alert('info', '<strong>One sec…</strong> looking you up.');
+        this.resolve({action: 'lookup', name: name});
+    },
+
+    lookupByParty: function (partyId) {
+        this.alert('info', '<strong>One sec…</strong> loading your party.', '#rsvp-lookup-alert');
+        this.resolve({action: 'lookup', party_id: partyId});
+    },
+
+    resolve: function (params) {
+        var self = this;
+        this.request(params)
+            .done(function (res) {
+                self.handleLookup(res);
+            })
+            .fail(function () {
+                self.alert('danger', '<strong>Sorry!</strong> Something went wrong. Please try again.');
+            });
+    },
+
+    handleLookup: function (res) {
+        if (!res || res.status === 'notfound') {
+            this.show('rsvp-notfound');
+        } else if (res.status === 'closed') {
+            this.show('rsvp-closed');
+        } else if (res.status === 'ambiguous') {
+            this.renderChoices(res.parties || []);
+            this.show('rsvp-ambiguous');
+        } else if (res.status === 'ok') {
+            this.renderParty(res);
+            this.show('rsvp-party');
         } else {
-            return (lResult ^ lX8 ^ lY8);
+            this.show('rsvp-notfound');
         }
-    }
+    },
 
-    function F(x, y, z) {
-        return (x & y) | ((~x) & z);
-    }
+    renderChoices: function (parties) {
+        var $list = $('#rsvp-party-choices').empty();
+        $.each(parties, function (i, p) {
+            var $btn = $('<button type="button" class="btn btn-white btn-small rsvp-choice">')
+                .attr('data-party-id', p.id)
+                .text(p.label);
+            $list.append($('<li>').append($btn));
+        });
+    },
 
-    function G(x, y, z) {
-        return (x & z) | (y & (~z));
-    }
+    renderParty: function (res) {
+        this.party = res;
+        $('#rsvp-party-id').val(res.party.id);
+        $('#rsvp-party-label').text(res.party.label);
+        $('#rsvp-email').val(res.party.email || '');
+        $('#rsvp-note').val(res.party.note || '');
 
-    function H(x, y, z) {
-        return (x ^ y ^ z);
-    }
-
-    function I(x, y, z) {
-        return (y ^ (x | (~z)));
-    }
-
-    function FF(a, b, c, d, x, s, ac) {
-        a = AddUnsigned(a, AddUnsigned(AddUnsigned(F(b, c, d), x), ac));
-        return AddUnsigned(RotateLeft(a, s), b);
-    };
-
-    function GG(a, b, c, d, x, s, ac) {
-        a = AddUnsigned(a, AddUnsigned(AddUnsigned(G(b, c, d), x), ac));
-        return AddUnsigned(RotateLeft(a, s), b);
-    };
-
-    function HH(a, b, c, d, x, s, ac) {
-        a = AddUnsigned(a, AddUnsigned(AddUnsigned(H(b, c, d), x), ac));
-        return AddUnsigned(RotateLeft(a, s), b);
-    };
-
-    function II(a, b, c, d, x, s, ac) {
-        a = AddUnsigned(a, AddUnsigned(AddUnsigned(I(b, c, d), x), ac));
-        return AddUnsigned(RotateLeft(a, s), b);
-    };
-
-    function ConvertToWordArray(string) {
-        var lWordCount;
-        var lMessageLength = string.length;
-        var lNumberOfWords_temp1 = lMessageLength + 8;
-        var lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (lNumberOfWords_temp1 % 64)) / 64;
-        var lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16;
-        var lWordArray = Array(lNumberOfWords - 1);
-        var lBytePosition = 0;
-        var lByteCount = 0;
-        while (lByteCount < lMessageLength) {
-            lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-            lBytePosition = (lByteCount % 4) * 8;
-            lWordArray[lWordCount] = (lWordArray[lWordCount] | (string.charCodeAt(lByteCount) << lBytePosition));
-            lByteCount++;
-        }
-        lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-        lBytePosition = (lByteCount % 4) * 8;
-        lWordArray[lWordCount] = lWordArray[lWordCount] | (0x80 << lBytePosition);
-        lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
-        lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
-        return lWordArray;
-    };
-
-    function WordToHex(lValue) {
-        var WordToHexValue = "", WordToHexValue_temp = "", lByte, lCount;
-        for (lCount = 0; lCount <= 3; lCount++) {
-            lByte = (lValue >>> (lCount * 8)) & 255;
-            WordToHexValue_temp = "0" + lByte.toString(16);
-            WordToHexValue = WordToHexValue + WordToHexValue_temp.substr(WordToHexValue_temp.length - 2, 2);
-        }
-        return WordToHexValue;
-    };
-
-    function Utf8Encode(string) {
-        string = string.replace(/\r\n/g, "\n");
-        var utftext = "";
-
-        for (var n = 0; n < string.length; n++) {
-
-            var c = string.charCodeAt(n);
-
-            if (c < 128) {
-                utftext += String.fromCharCode(c);
-            }
-            else if ((c > 127) && (c < 2048)) {
-                utftext += String.fromCharCode((c >> 6) | 192);
-                utftext += String.fromCharCode((c & 63) | 128);
-            }
-            else {
-                utftext += String.fromCharCode((c >> 12) | 224);
-                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                utftext += String.fromCharCode((c & 63) | 128);
+        var $list = $('#rsvp-guests').empty();
+        $.each(res.guests, function (i, g) {
+            var $name = $('<div class="rsvp-guest-name">').text(g.first + ' ' + g.last);
+            if (g.isPlusOne) {
+                $name.append(' ').append($('<span class="rsvp-badge">').text('+1'));
             }
 
+            var $choice = $('<div class="rsvp-guest-choice">')
+                .append(RSVP.radio(g.id, 'yes', 'Joyfully accepts', g.attending === 'yes'))
+                .append(RSVP.radio(g.id, 'no', 'Regretfully declines', g.attending === 'no'));
+
+            var $dietary = $('<input type="text" class="rsvp-dietary" ' +
+                'placeholder="Allergies or other dietary needs (optional)">')
+                .attr('name', 'dietary_' + g.id)
+                .val(g.dietary || '');
+
+            $list.append($('<li class="rsvp-guest">')
+                .append($name, $choice, $('<div class="rsvp-guest-dietary">').append($dietary)));
+        });
+    },
+
+    // Build a labelled radio button; values are escaped by jQuery's .text().
+    radio: function (guestId, value, label, checked) {
+        var $input = $('<input type="radio">')
+            .attr('name', 'attending_' + guestId)
+            .attr('value', value);
+        if (checked) {
+            $input.prop('checked', true);
+        }
+        return $('<label class="rsvp-radio">').append($input).append(' ' + label);
+    },
+
+    submit: function () {
+        var self = this;
+
+        var unanswered = 0;
+        $('#rsvp-guests .rsvp-guest').each(function () {
+            if (!$(this).find('input[type=radio]:checked').length) {
+                unanswered++;
+            }
+        });
+        if (unanswered) {
+            self.alert('danger', 'Please choose an option for each guest.', '#alert-wrapper');
+            return;
         }
 
-        return utftext;
-    };
+        self.alert('info', '<strong>Saving…</strong> sending your RSVP.', '#alert-wrapper');
+        var data = $('#rsvp-party-form').serialize() + '&action=submit';
+        this.request(data)
+            .done(function (res) {
+                if (res && res.status === 'ok') {
+                    self.show('rsvp-confirm');
+                } else if (res && res.status === 'closed') {
+                    self.show('rsvp-closed');
+                } else {
+                    self.alert('danger', (res && res.message) ||
+                        '<strong>Sorry!</strong> We could not save your RSVP.', '#alert-wrapper');
+                }
+            })
+            .fail(function () {
+                self.alert('danger', '<strong>Sorry!</strong> There is some issue with the server.', '#alert-wrapper');
+            });
+    },
 
-    var x = Array();
-    var k, AA, BB, CC, DD, a, b, c, d;
-    var S11 = 7, S12 = 12, S13 = 17, S14 = 22;
-    var S21 = 5, S22 = 9, S23 = 14, S24 = 20;
-    var S31 = 4, S32 = 11, S33 = 16, S34 = 23;
-    var S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+    // POST to the Apps Script endpoint (form-encoded = no CORS preflight), or
+    // fall back to the local mock while the endpoint is unconfigured.
+    request: function (data) {
+        if (this.endpoint.indexOf('PASTE_') === 0) {
+            return this.mock(data);
+        }
+        return $.ajax({url: this.endpoint, method: 'POST', data: data, dataType: 'json'});
+    },
 
-    string = Utf8Encode(string);
+    /* ----- Local mock (used only until `endpoint` is set) ----- */
 
-    x = ConvertToWordArray(string);
+    mockData: {
+        parties: {
+            p001: {id: 'p001', label: 'The Skeleton Crew', email: '', note: ''},
+            p002: {id: 'p002', label: 'The Hollow Coven', email: '', note: ''}
+        },
+        guests: [
+            {id: 'g1', partyId: 'p001', first: 'John', last: 'Smith', attending: '', dietary: '', isPlusOne: false},
+            {id: 'g2', partyId: 'p001', first: 'Jane', last: 'Smith', attending: '', dietary: '', isPlusOne: false},
+            {id: 'g3', partyId: 'p001', first: 'Ghostly', last: 'Plus-One', attending: '', dietary: '', isPlusOne: true},
+            {id: 'g4', partyId: 'p002', first: 'John', last: 'Smith', attending: '', dietary: '', isPlusOne: false}
+        ]
+    },
 
-    a = 0x67452301;
-    b = 0xEFCDAB89;
-    c = 0x98BADCFE;
-    d = 0x10325476;
+    mock: function (data) {
+        var params = typeof data === 'string' ? this.parseQuery(data) : data;
+        var res = params.action === 'submit' ? this.mockSubmit(params) : this.mockLookup(params);
+        var d = $.Deferred();
+        setTimeout(function () {
+            d.resolve(res);
+        }, 300);
+        return d.promise();
+    },
 
-    for (k = 0; k < x.length; k += 16) {
-        AA = a;
-        BB = b;
-        CC = c;
-        DD = d;
-        a = FF(a, b, c, d, x[k + 0], S11, 0xD76AA478);
-        d = FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756);
-        c = FF(c, d, a, b, x[k + 2], S13, 0x242070DB);
-        b = FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE);
-        a = FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF);
-        d = FF(d, a, b, c, x[k + 5], S12, 0x4787C62A);
-        c = FF(c, d, a, b, x[k + 6], S13, 0xA8304613);
-        b = FF(b, c, d, a, x[k + 7], S14, 0xFD469501);
-        a = FF(a, b, c, d, x[k + 8], S11, 0x698098D8);
-        d = FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF);
-        c = FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1);
-        b = FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE);
-        a = FF(a, b, c, d, x[k + 12], S11, 0x6B901122);
-        d = FF(d, a, b, c, x[k + 13], S12, 0xFD987193);
-        c = FF(c, d, a, b, x[k + 14], S13, 0xA679438E);
-        b = FF(b, c, d, a, x[k + 15], S14, 0x49B40821);
-        a = GG(a, b, c, d, x[k + 1], S21, 0xF61E2562);
-        d = GG(d, a, b, c, x[k + 6], S22, 0xC040B340);
-        c = GG(c, d, a, b, x[k + 11], S23, 0x265E5A51);
-        b = GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA);
-        a = GG(a, b, c, d, x[k + 5], S21, 0xD62F105D);
-        d = GG(d, a, b, c, x[k + 10], S22, 0x2441453);
-        c = GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681);
-        b = GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8);
-        a = GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6);
-        d = GG(d, a, b, c, x[k + 14], S22, 0xC33707D6);
-        c = GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87);
-        b = GG(b, c, d, a, x[k + 8], S24, 0x455A14ED);
-        a = GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905);
-        d = GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8);
-        c = GG(c, d, a, b, x[k + 7], S23, 0x676F02D9);
-        b = GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A);
-        a = HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942);
-        d = HH(d, a, b, c, x[k + 8], S32, 0x8771F681);
-        c = HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122);
-        b = HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C);
-        a = HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44);
-        d = HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9);
-        c = HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60);
-        b = HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70);
-        a = HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6);
-        d = HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA);
-        c = HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085);
-        b = HH(b, c, d, a, x[k + 6], S34, 0x4881D05);
-        a = HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039);
-        d = HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5);
-        c = HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8);
-        b = HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665);
-        a = II(a, b, c, d, x[k + 0], S41, 0xF4292244);
-        d = II(d, a, b, c, x[k + 7], S42, 0x432AFF97);
-        c = II(c, d, a, b, x[k + 14], S43, 0xAB9423A7);
-        b = II(b, c, d, a, x[k + 5], S44, 0xFC93A039);
-        a = II(a, b, c, d, x[k + 12], S41, 0x655B59C3);
-        d = II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92);
-        c = II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D);
-        b = II(b, c, d, a, x[k + 1], S44, 0x85845DD1);
-        a = II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F);
-        d = II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0);
-        c = II(c, d, a, b, x[k + 6], S43, 0xA3014314);
-        b = II(b, c, d, a, x[k + 13], S44, 0x4E0811A1);
-        a = II(a, b, c, d, x[k + 4], S41, 0xF7537E82);
-        d = II(d, a, b, c, x[k + 11], S42, 0xBD3AF235);
-        c = II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB);
-        b = II(b, c, d, a, x[k + 9], S44, 0xEB86D391);
-        a = AddUnsigned(a, AA);
-        b = AddUnsigned(b, BB);
-        c = AddUnsigned(c, CC);
-        d = AddUnsigned(d, DD);
+    mockLookup: function (params) {
+        var self = this;
+        if (params.party_id) {
+            return this.partyResponse(params.party_id);
+        }
+        var q = this.normalize(params.name);
+        var partyIds = [];
+        $.each(this.mockData.guests, function (i, g) {
+            var full = self.normalize(g.first + ' ' + g.last);
+            if (full === q || self.normalize(g.first) === q || self.normalize(g.last) === q ||
+                (q.length >= 3 && full.indexOf(q) > -1)) {
+                if (partyIds.indexOf(g.partyId) === -1) {
+                    partyIds.push(g.partyId);
+                }
+            }
+        });
+        if (!partyIds.length) {
+            return {status: 'notfound'};
+        }
+        if (partyIds.length > 1) {
+            return {
+                status: 'ambiguous',
+                parties: $.map(partyIds, function (id) {
+                    return {id: id, label: self.mockData.parties[id].label};
+                })
+            };
+        }
+        return this.partyResponse(partyIds[0]);
+    },
+
+    partyResponse: function (partyId) {
+        var party = this.mockData.parties[partyId];
+        if (!party) {
+            return {status: 'notfound'};
+        }
+        var guests = $.grep(this.mockData.guests, function (g) {
+            return g.partyId === partyId;
+        });
+        return {status: 'ok', party: party, guests: guests};
+    },
+
+    mockSubmit: function (params) {
+        var party = this.mockData.parties[params.party_id];
+        if (!party) {
+            return {status: 'error', message: 'Unknown party.'};
+        }
+        party.note = params.note || '';
+        party.email = params.email || '';
+        $.each(this.mockData.guests, function (i, g) {
+            if (g.partyId !== params.party_id) {
+                return;
+            }
+            if (params.hasOwnProperty('attending_' + g.id)) {
+                g.attending = params['attending_' + g.id];
+            }
+            if (params.hasOwnProperty('dietary_' + g.id)) {
+                g.dietary = params['dietary_' + g.id];
+            }
+        });
+        return {status: 'ok'};
+    },
+
+    normalize: function (s) {
+        return (s || '').toString().toLowerCase()
+            .replace(/[^a-z0-9]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    },
+
+    parseQuery: function (str) {
+        var out = {};
+        $.each((str || '').split('&'), function (i, pair) {
+            if (!pair) {
+                return;
+            }
+            var kv = pair.split('=');
+            var key = decodeURIComponent(kv[0].replace(/\+/g, ' '));
+            out[key] = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+        });
+        return out;
     }
-
-    var temp = WordToHex(a) + WordToHex(b) + WordToHex(c) + WordToHex(d);
-
-    return temp.toLowerCase();
 };
