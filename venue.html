@@ -113,39 +113,19 @@
         <h3>More Details to Come!</h3>
         <p></p>
     </div>
-    <div id="map-canvas"></div>
-    <div id="map-content-wrapper" class="container pointer-events-none">
+    <div class="container">
         <div class="row">
-            <div class="col-xs-offset-1 col-xs-10 col-md-offset-3 col-md-6">
-                <div class="text-center">
-                    <div id="btn-show-content" class="toggle-map-content pointer-events-auto">
-                        <i class="fa fa-info-circle"></i>&nbsp;&nbsp; Show info
-                    </div>
-                </div>
-                <div id="map-content" class="pointer-events-auto">
-                    <div class="row">
-                        <div class="col-md text-center">
-                            <h5>Lyman Estate</h5>
-                            <p>185 Lyman St, Waltham, MA 02452</p>
-                        </div>
-                    </div>
-                    <div class="row text-center">
-                        <!--
-                        <div class="col-md-6" style="padding: 5px;">
-                            <a class="btn btn-fill btn-small"
-                               href="https://m.uber.com/ul/?action=setPickup&client_id=Yh7Dl6SjB56RY2JuuZF8ttVa6ryFV78W&pickup=my_location&dropoff[formatted_address]=Fortune%20Park%20Panchwati%20-%20Hotels%20in%20Kolkata%2C%20Howrah%2C%20West%20Bengal%2C%20India&dropoff[latitude]=22.593276&dropoff[longitude]=88.270277"><i
-                                    class="fa fa-taxi"></i>&nbsp;&nbsp;Book Uber</a>
-                        </div>
-                        -->
-                        <!--<div class="col-md-6" style="padding: 5px;">-->
-                        <div class="row">
-                            <a class="btn btn-accent btn-small" id="btn-show-map"><i class="fa fa-map-marker"></i>&nbsp;&nbsp;Show
-                                map</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-6 col-md-offset-3 text-center">
+                <h5>Lyman Estate</h5>
+                <p>185 Lyman St, Waltham, MA 02452</p>
             </div>
         </div>
+    </div>
+    <div class="map-embed">
+        <iframe title="Map to Lyman Estate"
+                src="https://maps.google.com/maps?q=Lyman%20Estate%2C%20185%20Lyman%20St%2C%20Waltham%2C%20MA%2002452&output=embed"
+                style="border:0; width:100%; height:500px;" allowfullscreen loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
 </section>
 
@@ -167,8 +147,6 @@
 <script src="js/jquery.mb.YTPlayer.min.js"></script>
 <script src="js/vendor/ouical.js"></script>
 <script src="js/scripts.min.js"></script>
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKWdyMF27nNsXik_dHw1vAy0KP1WOA2A8&callback=initMap"></script>
 <!-- Google Analytics -->
 <script>
     (function (i, s, o, g, r, a, m) {

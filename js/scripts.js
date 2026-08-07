@@ -169,16 +169,6 @@ $(document).ready(function () {
     $('.player').YTPlayer();
 
 
-    /********************** Toggle Map Content **********************/
-    $('#btn-show-map').click(function () {
-        $('#map-content').toggleClass('toggle-map-content');
-        $('#btn-show-content').toggleClass('toggle-map-content');
-    });
-    $('#btn-show-content').click(function () {
-        $('#map-content').toggleClass('toggle-map-content');
-        $('#btn-show-content').toggleClass('toggle-map-content');
-    });
-
     /********************** Add to Calendar **********************/
     var myCalendar = createCalendar({
         options: {
@@ -191,7 +181,7 @@ $(document).ready(function () {
             title: "Katie and Alex's Wedding",
 
             // Event start date
-            start: new Date('Oct 31, 2026 16:00'),
+            start: new Date('Oct 31, 2026 16:30'),
 
             // Event duration (IN MINUTES)
             // duration: 120,
@@ -217,37 +207,6 @@ $(document).ready(function () {
 });
 
 /********************** Extras **********************/
-
-// Google map
-//AIzaSyBKWdyMF27nNsXik_dHw1vAy0KP1WOA2A8
-function initMap() {
-    var location = {lat: 42.383236, lng: -71.207402};
-    var mapcentr = {lat: 42.383119, lng: -71.228305};
-    var map = new google.maps.Map(document.getElementById('map-canvas'), {
-        zoom: 15,
-        center: location,
-        scrollwheel: false
-    });
-
-    var marker = new google.maps.Marker({
-        position: mapcentr,
-        map: map
-    });
-}
-
-function initBBSRMap() {
-    var la_fiesta = {lat: 20.305826, lng: 85.85480189999998};
-    var map = new google.maps.Map(document.getElementById('map-canvas'), {
-        zoom: 15,
-        center: la_fiesta,
-        scrollwheel: false
-    });
-
-    var marker = new google.maps.Marker({
-        position: la_fiesta,
-        map: map
-    });
-}
 
 // alert_markup
 function alert_markup(alert_type, msg) {
