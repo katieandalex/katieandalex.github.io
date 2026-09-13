@@ -990,6 +990,45 @@ RSVP form
 }
 
 /* ==========================================================================
+Gifts
+========================================================================== */
+.gifts {
+  p {
+    color: $tan-color;
+    font-size: 26px;
+    line-height: 36px;
+  }
+  .header {
+    color: $tan-color;
+  }
+
+  .gifts-options {
+    margin-top: 30px;
+  }
+  .gifts-btn {
+    margin: 0 15px 20px;
+  }
+
+  /* Zelle can't be a clickable payment link, so it's presented as a
+     labelled callout to copy into a banking app instead of a button. */
+  .gifts-zelle {
+    display: inline-block;
+    text-align: left;
+    color: $tan-color;
+    font-size: 20px;
+    line-height: 30px;
+    border: solid 1px $tan-color;
+    border-radius: 5px;
+    padding: 15px 18px;
+    margin: 10px auto 5px;
+
+    strong {
+      color: $regular-orange-color;
+    }
+  }
+}
+
+/* ==========================================================================
 Footer
 ========================================================================== */
 footer {
