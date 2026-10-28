@@ -181,7 +181,7 @@ $(document).ready(function () {
             title: "Katie and Alex's Wedding",
 
             // Event start date
-            start: new Date('Oct 31, 2026 16:30'),
+            start: new Date('Oct 31, 2026 16:00'),
 
             // Event duration (IN MINUTES)
             // duration: 120,
@@ -194,7 +194,7 @@ $(document).ready(function () {
             address: '185 Lyman St, Waltham, MA 02452',
 
             // Event Description
-            description: ""
+            description: "Guests may begin arriving at 4:00 PM. Ceremony begins at 4:30 PM."
         }
     });
 
@@ -226,7 +226,7 @@ var RSVP = {
 
     // RSVP cutoff — end of this day, US Eastern. Adjust as needed. Also
     // enforced server-side, since a browser's clock can't be trusted.
-    deadline: new Date('2026-10-1T23:59:59-04:00'),
+    deadline: new Date('2026-10-01T23:59:59-04:00'),
 
     party: null,
 

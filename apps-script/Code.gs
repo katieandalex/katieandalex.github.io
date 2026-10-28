@@ -19,7 +19,7 @@
 
 // RSVP cutoff. Keep this in sync with RSVP.deadline in js/scripts.js. A browser
 // clock can't be trusted, so the deadline is enforced here too.
-var DEADLINE = new Date('2026-10-15T23:59:59-04:00');
+var DEADLINE = new Date('2026-10-01T23:59:59-04:00');
 
 var PARTIES_SHEET = 'Parties';
 var GUESTS_SHEET = 'Guests';
